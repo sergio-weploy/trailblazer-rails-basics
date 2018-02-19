@@ -1,0 +1,13 @@
+h1 New Signup
+
+= simple_form_for @form, url: signups_path do |f|
+
+  = f.input :name
+  = f.input :email
+  = f.simple_fields_for :organisation do |fo|
+    = fo.input :name
+
+  label
+    = f.check_box :subscribe_to_newsletter
+    span Suscribe to Newsletter
+  = f.submit

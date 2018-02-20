@@ -4,8 +4,11 @@ class SignupsController < ApplicationController
   end
 
   def create
-    run User::Signup::Present do |result|
+    run User::Signup do |result|
+      return redirect_to root_url, notice: 'Yay its working!'
     end
+    flash.now[:alert] = 'Woops, something went wrong'
     render 'new'
   end
+
 end

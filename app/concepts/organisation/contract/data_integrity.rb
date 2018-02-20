@@ -5,7 +5,7 @@ module Organisation::Contract
     include Reform::Form::Module
 
     # Schema
-    property :name, on: :organisation
+    property :name
 
     # Validations
     validates :name, presence: true, length: { minimum: 2 }

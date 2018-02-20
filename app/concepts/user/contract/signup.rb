@@ -1,17 +1,22 @@
+require "reform/form/validation/unique_validator"
 module User::Contract
   class Signup < Reform::Form
 
+    # User Contract
+    # -------------------------------------------------------------------------
     include User::Contract::DataIntegrity
-
     property :subscribe_to_newsletter, virtual: true
+
+    # Contextual validations
+    validates :email, presence: true
+    validate :email_in_whitelist, if: '!errors.has_key?(:email)'
+
+
+    # Organisation Contract
+    # -------------------------------------------------------------------------
     property :organisation do
       include Organisation::Contract::DataIntegrity
     end
-
-    # Validations
-    validates :email, presence: true
-    validate :email_in_whitelist
-
 
     private
 
@@ -23,8 +28,9 @@ module User::Contract
     end
 
     def subscribe_to_newsletter=(value)
-      super ActiveRecord::Type::Boolean.new.cast(value)
+      super(value == '1')
     end
+
 
   end
 end

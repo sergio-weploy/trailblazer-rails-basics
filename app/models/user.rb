@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   enum role: [:user, :vip, :admin]
-  belongs_to :organisation#, optional: true
+  belongs_to :organisation# #optional: true
 
   after_initialize :set_default_role, :if => :new_record?
 

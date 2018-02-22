@@ -19,43 +19,49 @@ class User::Signup < Trailblazer::Operation
   step Nested( Present )
   step Contract::Validate( key: :user )
 
-  step Wrap -> (*, &block) { ActiveRecord::Base.transaction do block.call end } {
+  step Wrap ( MyTransaction ) {
     step :persist!
     step :add_user_to_mailchimp!
+    failure :rollback!
   }
 
+  failure :handle_all_wrap_failures!
   success :send_email_to_user!
   success :enroll_in_newsletter!
 
   private
-
-  def debug(options, **)
-    byebug
-  end
 
   def persist!(options, **)
     form = options['contract.default']
     form.sync
     user = form.model
     organisation = user.organisation
-
-    ActiveRecord::Base.transaction do
-      organisation.save!
-      user.save!
-    end
+    organisation.save!
+    user.save!
   end
 
   def add_user_to_mailchimp!(options, **)
-    puts "Posted to Mailchimp"
+    form = options['contract.default']
+    form.errors.add(:base, 'Mailchimp is unavailable')
+    true
+  end
+
+  def rollback!(options, **)
+    raise MyTransaction::Rollback
+  end
+
+  def handle_all_wrap_failures!(options, **)
+    form = options['contract.default']
+    p "Handled wrap failures"
   end
 
   def send_email_to_user!(options, model:, **)
-    puts "Email sent to #{model.email}"
+    p "Email sent to #{model.email}"
   end
 
   def enroll_in_newsletter!(options, **)
     form = options['contract.default']
-    puts "Enrolled #{form.email} in newsletter" if form.subscribe_to_newsletter
+    p "Enrolled #{form.email} in newsletter" if form.subscribe_to_newsletter
   end
 
 end

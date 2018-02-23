@@ -4,6 +4,11 @@ class User < ApplicationRecord
 
   after_initialize :set_default_role, :if => :new_record?
 
+  # Validations
+  validates :name, presence: true, length: { minimum: 3 }
+  validates :email, uniqueness: true, format: { with: Devise::email_regexp }
+  validates :password, presence: true
+
   def set_default_role
     self.role ||= :user
   end

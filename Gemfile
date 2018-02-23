@@ -49,7 +49,5 @@ group :test do
   gem 'launchy'
 end
 
-gem 'reform-rails'
-gem "trailblazer", ">= 2.0.3"
-gem "trailblazer-rails"
+
 

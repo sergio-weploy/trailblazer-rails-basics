@@ -1,48 +1,79 @@
-Trailblazer Rails Basics
-================
+# Installation
 
-This application was generated with the [rails_apps_composer](https://github.com/RailsApps/rails_apps_composer) gem
-provided by the [RailsApps Project](http://railsapps.github.io/).
+1. Make sure you have ruby-2.4.3 installed
+2. Clone the repo.
+3. Create a database superuser called `trailblazer-rails-basics`.  Run `createuser trailblazer-rails-basics;` and `ALTER USER myuser WITH SUPERUSER;`
+4. Run `rails db:setup`.
+5. You should be done!
 
-Rails Composer is supported by developers who purchase our RailsApps tutorials.
+# The problem to tackle
 
-Problems? Issues?
------------
+1. My application has Users and Organizations and a User must belong to an Organization.
 
-Need help? Ask on Stack Overflow with the tag 'railsapps.'
+A typicall rails implementation of such domain could look like this:
 
-Your application contains diagnostics in the README file. Please provide a copy of the README file when reporting any issues.
+```ruby
+class User < ApplicationRecord
+  
+  # Data integrity validations
+  validates :name, presence: true, length: { minimum: 3 }
+  validate :email_format_is_correct
+  # Password is implicitly required by Devise
 
-If the application doesn't work as expected, please [report an issue](https://github.com/RailsApps/rails_apps_composer/issues)
-and include the diagnostics.
+  # Associations
+  belongs_to :organization
 
-Ruby on Rails
--------------
+  private
+  def email_format_is_correct
+    # ....
+  end
 
-This application requires:
+end
 
-- Ruby 2.5.0
-- Rails 5.1.5
+class Organization < ApplicationRecord
+  
+  # Data integrity validations
+  validates :name, presence: true, length: { minimum: 3 }
 
-Learn more about [Installing Rails](http://railsapps.github.io/installing-rails.html).
+  # Associations
+  has_many :users
 
-Getting Started
----------------
+end
+```
 
-Documentation and Support
--------------------------
+Notice that the models have some validations in place that ensure the data integrity of the records. This means that every single record must comply with those validations.
 
-Issues
--------------
+2. The signup form on my app contains fields from both the User and the Organization.  It requests the user for these fields:
 
-Similar Projects
-----------------
+* User name
+* User Email
+* User Password
+* Organisation name
+* Would you like to subscribe to a newsletter?
 
-Contributing
-------------
+3. The signup form requires some contextual validations (validations that are only required for this form and not at a data integrity level)
 
-Credits
--------
+* User email is required.
+* The user's email must be on a "white list" that is hosted on an external service for the form to be valid (i.e we need to do an external API call to check).
 
-License
--------
+
+4. If validations errors occur, either from the model validations or the contextual validations, helpful error messages must be displayed in the from (active model style).
+
+5. Side effects
+If both records are saved:
+* Register user in Mailchimp
+* Send email to user
+* If user selected to enroll in newsletter, enroll it
+
+
+6. Data Integrity requirements
+If the user or organization fail to save, or if the user is not savid in mailchimp, neither the user or the organisation should be created and no "side effects" should be triggered.
+
+
+# Branches in this repo
+* The `master` branch contains a sample solution to the problem using trail blazer
+* The `start-here` branch contains the basic setup for the problem. Branch out of it to test your own implementation.
+
+
+ 
+
